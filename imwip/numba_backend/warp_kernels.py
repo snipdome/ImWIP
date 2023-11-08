@@ -151,7 +151,8 @@ def cubic_warp_2D_kernel(f, u, v, f_warped, coeffs, adjoint):
                         f_warped[i, j] += coefficient * f[Q0, Q1]
                 m += 1
 
-
+# specialisation for 3D float32, with output defined as a parameter in the signature
+#@cuda.jit("void(float32[:, :, :], float32[:, :, :], float32[:, :, :], float32[:, :, :], float32[:, :, :], float32[:], boolean)")
 @cuda.jit
 def cubic_warp_3D_kernel(f, u, v, w, f_warped, coeffs, adjoint):
     i, j, k = cuda.grid(3)
@@ -162,9 +163,9 @@ def cubic_warp_3D_kernel(f, u, v, w, f_warped, coeffs, adjoint):
         f_k = float32(k)
 
         # position at which to iterpolate
-        x = f_i + u[i, j, k]
-        y = f_j + v[i, j, k]
-        z = f_k + w[i, j, k]
+        x = float32(f_i + u[i, j, k])
+        y = float32(f_j + v[i, j, k])
+        z = float32(f_k + w[i, j, k])
 
         # points from which to interpolate
         x1 = int32(math.floor(x))
